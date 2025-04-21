@@ -55,7 +55,7 @@
       color: white;
       cursor: pointer;
     }
-      #save-status {
+    #save-status {
       text-align: center;
       margin-top: 10px;
       color: green;
@@ -66,18 +66,18 @@
 </head>
 <body>
   <h1 id="workout-title">Steve's Workout App</h1>
-  <div class="nav" id="week-selector" style="display:none;">
-  <div style="width: 100%; text-align: center; font-weight: bold; margin-bottom: 5px;">Week 1</div>
-  <button onclick="loadWorkout('push')">Push A</button>
-  <button onclick="loadWorkout('pull')">Pull A</button>
-  <button onclick="loadWorkout('legs')">Legs + Shoulders A</button>
-  <button onclick="loadWorkout('arms')">Arms + Chest A</button>
-  <div style="width: 100%; text-align: center; font-weight: bold; margin-top: 10px; margin-bottom: 5px;">Week 2</div>
-  <button onclick="loadWorkout('pushB')">Push B</button>
-  <button onclick="loadWorkout('pullB')">Pull B</button>
-  <button onclick="loadWorkout('legsB')">Legs + Shoulders B</button>
-  <button onclick="loadWorkout('armsB')">Arms + Chest B</button>
-</div>
+  <div class="nav" id="week-selector">
+    <div style="width: 100%; text-align: center; font-weight: bold; margin-bottom: 5px;">Week 1</div>
+    <button onclick="loadWorkout('push')">Push A</button>
+    <button onclick="loadWorkout('pull')">Pull A</button>
+    <button onclick="loadWorkout('legs')">Legs + Shoulders A</button>
+    <button onclick="loadWorkout('arms')">Arms + Chest A</button>
+    <div style="width: 100%; text-align: center; font-weight: bold; margin-top: 10px; margin-bottom: 5px;">Week 2</div>
+    <button onclick="loadWorkout('pushB')">Push B</button>
+    <button onclick="loadWorkout('pullB')">Pull B</button>
+    <button onclick="loadWorkout('legsB')">Legs + Shoulders B</button>
+    <button onclick="loadWorkout('armsB')">Arms + Chest B</button>
+  </div>
   <div style="text-align:center; margin-top: 10px;"><button onclick="clearAllInputs()">Reset All Inputs</button></div>
   <div style="text-align:center; margin-top: 10px;">
     <label for="logDate">Log Date:</label>
@@ -88,18 +88,51 @@
   <div id="content" class="workout-list"></div>
 
   <script>
-    // Automatically pick A or B week based on current ISO week number
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);
     const pastDaysOfYear = (today - startOfYear + 86400000) / 86400000;
     const currentWeekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
     const currentWeekType = currentWeekNumber % 2 === 0 ? 'B' : 'A';
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
 
     let currentWorkout = '';
-const workouts = {
+
+    const workouts = {
+      push: [
+        { name: "Incline Machine Press", sets: 3, reps: "8–10" },
+        { name: "Seated Cable Chest Fly", sets: 3, reps: "10–12" },
+        { name: "Machine Shoulder Press", sets: 3, reps: "8–10" },
+        { name: "Dumbbell Lateral Raises", sets: 3, reps: "12–15" },
+        { name: "Overhead Rope Triceps Extension", sets: 3, reps: "12–15" },
+        { name: "Close-Grip Machine Press", sets: 2, reps: "8–12" }
+      ],
+      pull: [
+        { name: "Lat Pulldown (Wide Neutral Grip)", sets: 3, reps: "10" },
+        { name: "Seated Row (Close Grip)", sets: 3, reps: "10" },
+        { name: "Rear Delt Cable Fly", sets: 3, reps: "12–15" },
+        { name: "Dumbbell Hammer Curls", sets: 3, reps: "10–12" },
+        { name: "Preacher Curl Machine", sets: 3, reps: "10–12" },
+        { name: "Face Pulls (Optional)", sets: 2, reps: "15" }
+      ],
+      legs: [
+        { name: "Goblet Squat", sets: 3, reps: "10–12" },
+        { name: "Dumbbell Romanian Deadlifts", sets: 3, reps: "10" },
+        { name: "Seated Calf Raise Machine", sets: 3, reps: "12–15" },
+        { name: "Dumbbell Lateral Raises", sets: 3, reps: "15" },
+        { name: "Cable Lateral Raise", sets: 2, reps: "12" },
+        { name: "Dumbbell Front Raise", sets: 2, reps: "10–12" }
+      ],
+      arms: [
+        { name: "Dumbbell Bicep Curl", sets: 3, reps: "10" },
+        { name: "Rope Triceps Pushdown", sets: 3, reps: "12–15" },
+        { name: "Incline Dumbbell Fly", sets: 3, reps: "12" },
+        { name: "Concentration Curl", sets: 3, reps: "10" },
+        { name: "Dumbbell Overhead Triceps Extension", sets: 2, reps: "10–12" },
+        { name: "Cable Chest Crossover", sets: 2, reps: "15" }
+      ],
       pushB: [
         { name: "Machine Chest Press (Flat)", sets: 3, reps: "10–12" },
         { name: "Incline Cable Fly (Low to High)", sets: 3, reps: "12" },
@@ -131,49 +164,21 @@ const workouts = {
         { name: "Cable Rope Hammer Curl", sets: 3, reps: "12" },
         { name: "Overhead Rope Triceps Extension", sets: 3, reps: "12" },
         { name: "Pec Deck (Finisher)", sets: 2, reps: "15–20" }
-      ],
-      push: [
-        { name: "Incline Machine Press", sets: 3, reps: "8–10" },
-        { name: "Seated Cable Chest Fly", sets: 3, reps: "10–12" },
-        { name: "Machine Shoulder Press", sets: 3, reps: "8–10" },
-        { name: "Dumbbell Lateral Raises", sets: 3, reps: "12–15" },
-        { name: "Overhead Rope Triceps Extension", sets: 3, reps: "12–15" },
-        { name: "Close-Grip Machine Press", sets: 2, reps: "8–12" },
-      ],
-      pull: [
-        { name: "Lat Pulldown (Wide Neutral Grip)", sets: 3, reps: "10" },
-        { name: "Seated Row (Close Grip)", sets: 3, reps: "10" },
-        { name: "Rear Delt Cable Fly", sets: 3, reps: "12–15" },
-        { name: "Dumbbell Hammer Curls", sets: 3, reps: "10–12" },
-        { name: "Preacher Curl Machine", sets: 3, reps: "10–12" },
-        { name: "Face Pulls (Optional)", sets: 2, reps: "15" },
-      ],
-      legs: [
-        { name: "Goblet Squat", sets: 3, reps: "10–12" },
-        { name: "Dumbbell Romanian Deadlifts", sets: 3, reps: "10" },
-        { name: "Seated Calf Raise Machine", sets: 3, reps: "12–15" },
-        { name: "Dumbbell Lateral Raises", sets: 3, reps: "15" },
-        { name: "Cable Lateral Raise", sets: 2, reps: "12" },
-        { name: "Dumbbell Front Raise", sets: 2, reps: "10–12" },
-      ],
-      arms: [
-        { name: "Dumbbell Bicep Curl", sets: 3, reps: "10" },
-        { name: "Rope Triceps Pushdown", sets: 3, reps: "12–15" },
-        { name: "Incline Dumbbell Fly", sets: 3, reps: "12" },
-        { name: "Concentration Curl", sets: 3, reps: "10" },
-        { name: "Dumbbell Overhead Triceps Extension", sets: 2, reps: "10–12" },
-        { name: "Cable Chest Crossover", sets: 2, reps: "15" },
-      ],
+      ]
     };
 
     function loadWorkout(type) {
-  currentWorkout = type;
-  const date = document.getElementById('logDate')?.value || new Date().toISOString().split('T')[0];
-  const content = document.getElementById('content');
-  const exercises = workouts[type];
+      currentWorkout = type;
+      const date = document.getElementById('logDate')?.value || new Date().toISOString().split('T')[0];
+      const content = document.getElementById('content');
+      const exercises = workouts[type];
+      if (!exercises) {
+        content.innerHTML = `<p style='text-align:center; color:red;'>Workout "${type}" not found.</p>`;
+        return;
+      }
       document.getElementById('workout-title').innerText = `${type.toUpperCase()} Workout`;
-  document.getElementById('current-week-label').innerText = type.includes('B') ? 'Week 2 (B)' : 'Week 1 (A)';
-  content.innerHTML = exercises.map((ex, index) => {
+      document.getElementById('current-week-label').innerText = type.includes('B') ? 'Week 2 (B)' : 'Week 1 (A)';
+      content.innerHTML = exercises.map((ex, index) => {
         const inputId = `${type}-${index}`;
         const logKey = `${inputId}-${date}`;
         const savedValue = localStorage.getItem(logKey) || '';
@@ -187,30 +192,33 @@ const workouts = {
             <strong>${ex.name}</strong>
             <div>Sets: ${ex.sets}, Reps: ${ex.reps}</div>
             <label for="${inputId}">Weight Used:</label>
-            <input id="${inputId}" type="text" value="${savedValue}" oninput="saveWithFeedback(logKey, this)" placeholder="e.g. 30 lbs" oninput="saveWithFeedback(logKey, this); document.getElementById('last-' + inputId).innerText = this.value" />
-          <div style='font-size: 12px; color: #555; margin-top: 4px;'>Last: <span id="last-${inputId}">${lastValue}</span></div>
+            <input id="${inputId}" type="text" value="${savedValue}" oninput="saveWithFeedback('${logKey}', this); document.getElementById('last-${inputId}').innerText = this.value" placeholder="e.g. 30 lbs" />
+            <div style='font-size: 12px; color: #555; margin-top: 4px;'>Last: <span id="last-${inputId}">${lastValue}</span></div>
           </div>
         `;
       }).join('');
     }
-  function clearAllInputs() {
-  if (confirm('Are you sure you want to reset all saved weights?')) {
-    localStorage.clear();
-    location.reload();
-  }
-}
-function saveWithFeedback(key, input) {
-  localStorage.setItem(key, input.value);
-  const status = document.getElementById('save-status');
-  status.style.display = 'block';
-  setTimeout(() => {
-    status.style.display = 'none';
-  }, 1000);
-}
-window.onload = () => {
-  const defaultWorkout = currentWeekType === 'A' ? 'push' : 'pushB';
-  loadWorkout(defaultWorkout);
-};
-</script>
+
+    function clearAllInputs() {
+      if (confirm('Are you sure you want to reset all saved weights?')) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    function saveWithFeedback(key, input) {
+      localStorage.setItem(key, input.value);
+      const status = document.getElementById('save-status');
+      status.style.display = 'block';
+      setTimeout(() => {
+        status.style.display = 'none';
+      }, 1000);
+    }
+
+    window.onload = () => {
+      const defaultWorkout = currentWeekType === 'A' ? 'push' : 'pushB';
+      loadWorkout(defaultWorkout);
+    };
+  </script>
 </body>
 </html>
