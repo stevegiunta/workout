@@ -66,25 +66,34 @@
 </head>
 <body>
   <h1 id="workout-title">Steve's Workout App</h1>
-  <div class="nav">
-    <button onclick="loadWorkout('pushB')">Push B</button>
-    <button onclick="loadWorkout('pullB')">Pull B</button>
-    <button onclick="loadWorkout('legsB')">Legs + Shoulders B</button>
-    <button onclick="loadWorkout('armsB')">Arms + Chest B</button>
-    <button onclick="loadWorkout('push')">Push A</button>
-    <button onclick="loadWorkout('pull')">Pull A</button>
-    <button onclick="loadWorkout('legs')">Legs + Shoulders A</button>
-    <button onclick="loadWorkout('arms')">Arms + Chest A</button>
-  </div>
+  <div class="nav" id="week-selector" style="display:none;">
+  <div style="width: 100%; text-align: center; font-weight: bold; margin-bottom: 5px;">Week 1</div>
+  <button onclick="loadWorkout('push')">Push A</button>
+  <button onclick="loadWorkout('pull')">Pull A</button>
+  <button onclick="loadWorkout('legs')">Legs + Shoulders A</button>
+  <button onclick="loadWorkout('arms')">Arms + Chest A</button>
+  <div style="width: 100%; text-align: center; font-weight: bold; margin-top: 10px; margin-bottom: 5px;">Week 2</div>
+  <button onclick="loadWorkout('pushB')">Push B</button>
+  <button onclick="loadWorkout('pullB')">Pull B</button>
+  <button onclick="loadWorkout('legsB')">Legs + Shoulders B</button>
+  <button onclick="loadWorkout('armsB')">Arms + Chest B</button>
+</div>
   <div style="text-align:center; margin-top: 10px;"><button onclick="clearAllInputs()">Reset All Inputs</button></div>
   <div style="text-align:center; margin-top: 10px;">
     <label for="logDate">Log Date:</label>
     <input id="logDate" type="date" onchange="loadWorkout(currentWorkout)">
   </div>
+  <div style="text-align:center; font-weight:bold; margin-top:10px;">Currently Showing: <span id="current-week-label"></span></div>
   <div id="save-status">Saved</div>
   <div id="content" class="workout-list"></div>
 
   <script>
+    // Automatically pick A or B week based on current ISO week number
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    const pastDaysOfYear = (today - startOfYear + 86400000) / 86400000;
+    const currentWeekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+    const currentWeekType = currentWeekNumber % 2 === 0 ? 'B' : 'A';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
@@ -163,16 +172,23 @@ const workouts = {
   const content = document.getElementById('content');
   const exercises = workouts[type];
       document.getElementById('workout-title').innerText = `${type.toUpperCase()} Workout`;
+  document.getElementById('current-week-label').innerText = type.includes('B') ? 'Week 2 (B)' : 'Week 1 (A)';
   content.innerHTML = exercises.map((ex, index) => {
         const inputId = `${type}-${index}`;
         const logKey = `${inputId}-${date}`;
         const savedValue = localStorage.getItem(logKey) || '';
+        const prevDates = Object.keys(localStorage)
+          .filter(k => k.startsWith(inputId + '-') && k !== logKey)
+          .sort().reverse();
+        const lastLogKey = prevDates[0];
+        const lastValue = lastLogKey ? localStorage.getItem(lastLogKey) : '—';
         return `
           <div class="exercise">
             <strong>${ex.name}</strong>
             <div>Sets: ${ex.sets}, Reps: ${ex.reps}</div>
             <label for="${inputId}">Weight Used:</label>
-            <input id="${inputId}" type="text" value="${savedValue}" oninput="saveWithFeedback(logKey, this)" placeholder="e.g. 30 lbs" />
+            <input id="${inputId}" type="text" value="${savedValue}" oninput="saveWithFeedback(logKey, this)" placeholder="e.g. 30 lbs" oninput="saveWithFeedback(logKey, this); document.getElementById('last-' + inputId).innerText = this.value" />
+          <div style='font-size: 12px; color: #555; margin-top: 4px;'>Last: <span id="last-${inputId}">${lastValue}</span></div>
           </div>
         `;
       }).join('');
@@ -191,6 +207,10 @@ function saveWithFeedback(key, input) {
     status.style.display = 'none';
   }, 1000);
 }
+window.onload = () => {
+  const defaultWorkout = currentWeekType === 'A' ? 'push' : 'pushB';
+  loadWorkout(defaultWorkout);
+};
 </script>
 </body>
 </html>
