@@ -55,11 +55,22 @@
       color: white;
       cursor: pointer;
     }
+      #save-status {
+      text-align: center;
+      margin-top: 10px;
+      color: green;
+      font-weight: bold;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <h1>Steve's Workout - Week 1</h1>
   <div class="nav">
+    <button onclick="loadWorkout('pushB')">Push B</button>
+    <button onclick="loadWorkout('pullB')">Pull B</button>
+    <button onclick="loadWorkout('legsB')">Legs + Shoulders B</button>
+    <button onclick="loadWorkout('armsB')">Arms + Chest B</button>
     <button onclick="loadWorkout('push')">Push A</button>
     <button onclick="loadWorkout('pull')">Pull A</button>
     <button onclick="loadWorkout('legs')">Legs + Shoulders A</button>
@@ -70,6 +81,7 @@
     <label for="logDate">Log Date:</label>
     <input id="logDate" type="date" onchange="loadWorkout(currentWorkout)">
   </div>
+  <div id="save-status">Saved</div>
   <div id="content" class="workout-list"></div>
 
   <script>
@@ -79,6 +91,38 @@
 
     let currentWorkout = '';
 const workouts = {
+      pushB: [
+        { name: "Machine Chest Press (Flat)", sets: 3, reps: "10–12" },
+        { name: "Incline Cable Fly (Low to High)", sets: 3, reps: "12" },
+        { name: "Arnold Press (Dumbbells)", sets: 3, reps: "8–10" },
+        { name: "Cable Lateral Raises", sets: 3, reps: "12–15" },
+        { name: "Overhead Dumbbell Triceps Extension (Seated)", sets: 3, reps: "10–12" },
+        { name: "Triceps Rope Pushdown (Paused at Bottom)", sets: 2, reps: "12–15" }
+      ],
+      pullB: [
+        { name: "Neutral-Grip Lat Pulldown", sets: 3, reps: "10" },
+        { name: "Cable Face Pulls (High + Out)", sets: 3, reps: "12–15" },
+        { name: "Straight Arm Cable Pulldown", sets: 3, reps: "10–12" },
+        { name: "EZ Bar Curl (Preloaded or Cable)", sets: 3, reps: "10" },
+        { name: "Incline Dumbbell Curls", sets: 2, reps: "10–12" },
+        { name: "Reverse Curl (EZ Bar or Dumbbells)", sets: 2, reps: "12" }
+      ],
+      legsB: [
+        { name: "Leg Press (Feet Medium Width)", sets: 3, reps: "12–15" },
+        { name: "Walking Lunges (Dumbbells)", sets: 3, reps: "10 steps each leg" },
+        { name: "Hamstring Curl Machine", sets: 3, reps: "12" },
+        { name: "Dumbbell Lateral Raise", sets: 3, reps: "15" },
+        { name: "Rear Delt Dumbbell Fly (Chest Supported)", sets: 3, reps: "12–15" },
+        { name: "Upright Row (EZ Bar or Dumbbells)", sets: 2, reps: "12" }
+      ],
+      armsB: [
+        { name: "Machine Chest Fly (Mid Position)", sets: 3, reps: "12–15" },
+        { name: "Barbell or Cable Curl (Strict Form)", sets: 3, reps: "10" },
+        { name: "Skull Crushers (EZ Bar or Machine)", sets: 3, reps: "10–12" },
+        { name: "Cable Rope Hammer Curl", sets: 3, reps: "12" },
+        { name: "Overhead Rope Triceps Extension", sets: 3, reps: "12" },
+        { name: "Pec Deck (Finisher)", sets: 2, reps: "15–20" }
+      ],
       push: [
         { name: "Incline Machine Press", sets: 3, reps: "8–10" },
         { name: "Seated Cable Chest Fly", sets: 3, reps: "10–12" },
@@ -127,7 +171,7 @@ const workouts = {
             <strong>${ex.name}</strong>
             <div>Sets: ${ex.sets}, Reps: ${ex.reps}</div>
             <label for="${inputId}">Weight Used:</label>
-            <input id="${inputId}" type="text" value="${savedValue}" oninput="localStorage.setItem(logKey, this.value)" placeholder="e.g. 30 lbs" />
+            <input id="${inputId}" type="text" value="${savedValue}" oninput="saveWithFeedback(logKey, this)" placeholder="e.g. 30 lbs" />
           </div>
         `;
       }).join('');
@@ -137,6 +181,14 @@ const workouts = {
     localStorage.clear();
     location.reload();
   }
+}
+function saveWithFeedback(key, input) {
+  localStorage.setItem(key, input.value);
+  const status = document.getElementById('save-status');
+  status.style.display = 'block';
+  setTimeout(() => {
+    status.style.display = 'none';
+  }, 1000);
 }
 </script>
 </body>
