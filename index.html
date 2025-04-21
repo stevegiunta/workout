@@ -65,7 +65,11 @@
     <button onclick="loadWorkout('legs')">Legs + Shoulders A</button>
     <button onclick="loadWorkout('arms')">Arms + Chest A</button>
   </div>
-
+  <div style="text-align:center; margin-top: 10px;"><button onclick="clearAllInputs()">Reset All Inputs</button></div>
+  <div style="text-align:center; margin-top: 10px;">
+    <label for="logDate">Log Date:</label>
+    <input id="logDate" type="date" onchange="loadWorkout(currentWorkout)">
+  </div>
   <div id="content" class="workout-list"></div>
 
   <script>
@@ -73,7 +77,8 @@
       navigator.serviceWorker.register('service-worker.js');
     }
 
-    const workouts = {
+    let currentWorkout = '';
+const workouts = {
       push: [
         { name: "Incline Machine Press", sets: 3, reps: "8–10" },
         { name: "Seated Cable Chest Fly", sets: 3, reps: "10–12" },
@@ -109,21 +114,30 @@
     };
 
     function loadWorkout(type) {
-      const content = document.getElementById('content');
-      const exercises = workouts[type];
+  currentWorkout = type;
+  const date = document.getElementById('logDate')?.value || new Date().toISOString().split('T')[0];
+  const content = document.getElementById('content');
+  const exercises = workouts[type];
       content.innerHTML = `<h2>${type.toUpperCase()} Workout</h2>` + exercises.map((ex, index) => {
         const inputId = `${type}-${index}`;
-        const savedValue = localStorage.getItem(inputId) || '';
+        const logKey = `${inputId}-${date}`;
+        const savedValue = localStorage.getItem(logKey) || '';
         return `
           <div class="exercise">
             <strong>${ex.name}</strong>
             <div>Sets: ${ex.sets}, Reps: ${ex.reps}</div>
             <label for="${inputId}">Weight Used:</label>
-            <input id="${inputId}" type="text" value="${savedValue}" oninput="localStorage.setItem('${inputId}', this.value)" placeholder="e.g. 30 lbs" />
+            <input id="${inputId}" type="text" value="${savedValue}" oninput="localStorage.setItem(logKey, this.value)" placeholder="e.g. 30 lbs" />
           </div>
         `;
       }).join('');
     }
-  </script>
+  function clearAllInputs() {
+  if (confirm('Are you sure you want to reset all saved weights?')) {
+    localStorage.clear();
+    location.reload();
+  }
+}
+</script>
 </body>
 </html>
