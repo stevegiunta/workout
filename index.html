@@ -1,2 +1,38 @@
 <!DOCTYPE html>
-<!-- merged app index.html placeholder -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Steve's Workout App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1 id="workout-title">Steve's Workout App</h1>
+  <div class="nav" id="week-selector">
+    <div style="width: 100%; text-align: center; font-weight: bold; margin-bottom: 5px;">Week 1</div>
+    <button onclick="loadWorkout('push')">Push A</button>
+    <button onclick="loadWorkout('pull')">Pull A</button>
+    <button onclick="loadWorkout('legs')">Legs + Shoulders A</button>
+    <button onclick="loadWorkout('arms')">Arms + Chest A</button>
+    <div style="width: 100%; text-align: center; font-weight: bold; margin-top: 10px; margin-bottom: 5px;">Week 2</div>
+    <button onclick="loadWorkout('pushB')">Push B</button>
+    <button onclick="loadWorkout('pullB')">Pull B</button>
+    <button onclick="loadWorkout('legsB')">Legs + Shoulders B</button>
+    <button onclick="loadWorkout('armsB')">Arms + Chest B</button>
+  </div>
+  <div style="text-align:center; margin-top: 10px;"><button onclick="clearAllInputs()">Reset All Inputs</button></div>
+  <div style="text-align:center; margin-top: 10px;">
+    <label for="logDate">Log Date:</label>
+    <input id="logDate" type="date" onchange="loadWorkout(currentWorkout)">
+  </div>
+  <div style="text-align:center; font-weight:bold; margin-top:10px;">Currently Showing: <span id="current-week-label"></span></div>
+  <div style="text-align:center; margin-top:10px;"><button onclick="viewProgressSummary()">View Progress Summary</button></div>
+  <div id="progress-summary" class="workout-list" style="display:none;"></div>
+  <div id="save-status">Saved</div>
+  <div id="content" class="workout-list"></div>
+
+  <script src="main.js"></script>
+</body>
+</html>
